@@ -23,7 +23,7 @@ jobs:
       # Step 3: Install dependencies on the EC2 instance
       - name: Install dependencies on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@<EC2_Public_IP> '
+          ssh -o StrictHostKeyChecking=no ubuntu@<3.93.195.171> '
             sudo apt update &&
             sudo apt install -y nodejs npm postgresql postgresql-contrib &&
             npm install -g @medusajs/medusa-cli
