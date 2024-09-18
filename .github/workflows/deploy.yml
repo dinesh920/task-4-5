@@ -1,0 +1,48 @@
+name: Deploy Medusa to EC2
+
+on:
+  push:
+    branches:
+      - main  # This will trigger the workflow on push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up SSH to connect to your EC2 instance
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Install dependencies on the EC2 instance
+      - name: Install dependencies on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@<EC2_Public_IP> << 'EOF'
+          sudo apt update
+          sudo apt install -y nodejs npm postgresql postgresql-contrib
+          npm install -g @medusajs/medusa-cli
+          EOF
+
+      # Copy the Medusa project to the EC2 instance
+      - name: Copy Medusa project to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -r . ubuntu@<EC2_Public_IP>:/var/www/medusa/
+
+      # Set up PostgreSQL and run Medusa
+      - name: Set up and run Medusa on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@<EC2_Public_IP> << 'EOF'
+          sudo systemctl start postgresql
+          sudo -u postgres psql -c "CREATE USER dinesh WITH PASSWORD 'dineshpm15';"
+          sudo -u postgres psql -c "ALTER USER dinesh CREATEDB;"
+          sudo -u postgres psql -c "CREATE DATABASE medusa1_db OWNER dinesh;"
+          cd /var/www/medusa
+          echo 'DATABASE_URL=postgres://dinesh:dineshpm15@localhost:5432/medusa1_db' > .env
+          medusa develop
+          EOF
