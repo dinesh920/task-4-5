@@ -23,7 +23,7 @@ jobs:
       # Step 3: Install dependencies on the EC2 instance
       - name: Install dependencies on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@3.93.195.171'
+          ssh -o StrictHostKeyChecking=no ubuntu@3.93.195.171
             sudo apt update &&
             sudo apt install -y nodejs npm postgresql postgresql-contrib &&
             npm install -g @medusajs/medusa-cli
@@ -32,12 +32,12 @@ jobs:
       # Step 4: Copy the Medusa project to the EC2 instance
       - name: Copy Medusa project to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -r . ubuntu@<EC2_Public_IP>:/var/www/medusa/
+          scp -o StrictHostKeyChecking=no -r . ubuntu@3.93.195.171:/var/www/medusa/
 
       # Step 5: Set up PostgreSQL and run Medusa on EC2
       - name: Set up PostgreSQL and run Medusa
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@<EC2_Public_IP> '
+          ssh -o StrictHostKeyChecking=no ubuntu@3.93.195.171 '
             sudo systemctl start postgresql &&
             sudo -u postgres psql -c "CREATE USER dinesh WITH PASSWORD '\''dineshpm15'\'';" &&
             sudo -u postgres psql -c "ALTER USER dinesh CREATEDB;" &&
